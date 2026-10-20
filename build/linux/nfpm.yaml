@@ -1,0 +1,16 @@
+name: lecoo-control-gui
+arch: amd64
+platform: linux
+version: ${VERSION}
+section: utils
+priority: optional
+maintainer: akirousnow
+vendor: akirousnow
+homepage: https://github.com/akirousnow/lecoo-control-gui
+description: |
+  联想来酷 N155A 的图形控制面板。
+  硬件控制经由 Windows 上的 lecoo-ctrl.exe 与 LecooControlDaemon 完成，
+  因此这个 Linux 包只能启动界面，会提示找不到 CLI，无法读取或设置硬件。
+contents:
+  - src: build/bin/lecoo-control-gui
+    dst: /usr/bin/lecoo-control-gui
