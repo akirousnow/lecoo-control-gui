@@ -7,13 +7,10 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 	"time"
 )
 
 const defaultCliPath = `C:\Program Files\LecooControlCenter\lecoo-ctrl.exe`
-
-const createNoWindow = 0x08000000
 
 func DefaultPath() string {
 	if p := os.Getenv("LECOO_CTRL_PATH"); p != "" {
@@ -43,7 +40,7 @@ func (r *Runner) command(ctx context.Context, args ...string) *exec.Cmd {
 		path = DefaultPath()
 	}
 	cmd := exec.CommandContext(ctx, path, args...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: createNoWindow}
+	hideConsoleWindow(cmd)
 	return cmd
 }
 

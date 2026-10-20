@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"os/exec"
-	"syscall"
 
 	"lecoo-control-gui/internal/lecoo"
 
@@ -118,9 +116,7 @@ func (a *App) StopMonitor() lecoo.MonitorState {
 }
 
 func (a *App) OpenHwtest() error {
-	cmd := exec.Command(a.svc.CliPath(), "hwtest")
-	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x00000010}
-	return cmd.Start()
+	return runHwtest(a.svc.CliPath())
 }
 
 func (a *App) Minimise() {
