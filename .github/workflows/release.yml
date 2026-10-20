@@ -100,6 +100,7 @@ jobs:
       - name: 创建或更新 release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
         run: |
           ls -lh dist
