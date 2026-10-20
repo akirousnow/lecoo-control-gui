@@ -3,6 +3,7 @@ module lecoo-control-gui
 go 1.25.0
 
 require (
+	fyne.io/systray v1.12.2
 	github.com/wailsapp/wails/v2 v2.17.0
 	golang.org/x/sys v0.46.0
 )

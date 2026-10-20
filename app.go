@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"os/exec"
-	"sync/atomic"
 	"syscall"
 
 	"lecoo-control-gui/internal/lecoo"
@@ -12,9 +11,8 @@ import (
 )
 
 type App struct {
-	ctx     context.Context
-	svc     *lecoo.Service
-	compact atomic.Bool
+	ctx context.Context
+	svc *lecoo.Service
 }
 
 func NewApp() *App {
@@ -27,9 +25,11 @@ func (a *App) startup(ctx context.Context) {
 		runtime.EventsEmit(ctx, name, payload)
 	})
 	_, _ = a.svc.StartMonitor(1000)
+	a.startTray()
 }
 
 func (a *App) shutdown(ctx context.Context) {
+	a.stopTray()
 	a.svc.Close()
 }
 
@@ -148,7 +148,6 @@ func (a *App) SetTheme(theme string) {
 }
 
 func (a *App) SetCompactWindow(compact bool, alwaysOnTop bool) {
-	a.compact.Store(compact)
 	if compact {
 		runtime.WindowSetMinSize(a.ctx, 360, 220)
 		runtime.WindowSetSize(a.ctx, 380, 232)
@@ -156,7 +155,7 @@ func (a *App) SetCompactWindow(compact bool, alwaysOnTop bool) {
 			runtime.WindowSetPosition(a.ctx, position.X, position.Y)
 		}
 		runtime.WindowSetAlwaysOnTop(a.ctx, alwaysOnTop)
-		setTaskbarVisible(!alwaysOnTop)
+		setTaskbarVisible(false)
 		return
 	}
 	runtime.WindowSetAlwaysOnTop(a.ctx, false)
@@ -168,7 +167,4 @@ func (a *App) SetCompactWindow(compact bool, alwaysOnTop bool) {
 
 func (a *App) SetAlwaysOnTop(enabled bool) {
 	runtime.WindowSetAlwaysOnTop(a.ctx, enabled)
-	if a.compact.Load() {
-		setTaskbarVisible(!enabled)
-	}
 }

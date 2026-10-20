@@ -4,6 +4,7 @@
   import Sidebar from '$lib/components/Sidebar.svelte'
   import Titlebar from '$lib/components/Titlebar.svelte'
   import { Button } from '$lib/components/ui/button'
+  import { onEvent } from '$lib/api'
   import { store } from '$lib/store.svelte'
   import { theme } from '$lib/theme.svelte'
   import { view } from '$lib/view.svelte'
@@ -17,8 +18,12 @@
     theme.init()
     view.init()
     const detach = store.connect()
+    const detachTray = onEvent('app:compact-toggle', () => view.toggleCompact())
     void store.init()
-    return detach
+    return () => {
+      detach()
+      detachTray()
+    }
   })
 </script>
 
