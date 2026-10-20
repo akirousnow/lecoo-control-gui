@@ -4,16 +4,14 @@
   import Sidebar from '$lib/components/Sidebar.svelte'
   import Titlebar from '$lib/components/Titlebar.svelte'
   import { Button } from '$lib/components/ui/button'
-  import About from '$lib/pages/About.svelte'
-  import Charge from '$lib/pages/Charge.svelte'
-  import Dashboard from '$lib/pages/Dashboard.svelte'
-  import Fans from '$lib/pages/Fans.svelte'
-  import Power from '$lib/pages/Power.svelte'
   import { store } from '$lib/store.svelte'
   import { theme } from '$lib/theme.svelte'
   import { view } from '$lib/view.svelte'
+  import { routes } from '$lib/routes'
 
   let page = $state('overview')
+  const route = $derived(routes.find((r) => r.id === page) ?? routes[0])
+  const Page = $derived(route.component)
 
   onMount(() => {
     theme.init()
@@ -57,17 +55,7 @@
             </div>
           {/if}
 
-          {#if page === 'fans'}
-            <Fans />
-          {:else if page === 'power'}
-            <Power />
-          {:else if page === 'charge'}
-            <Charge />
-          {:else if page === 'about'}
-            <About />
-          {:else}
-            <Dashboard />
-          {/if}
+          <Page />
         </div>
       </main>
     </div>

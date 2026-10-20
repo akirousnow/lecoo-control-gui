@@ -1,17 +1,9 @@
 <script lang="ts">
-  import { BatteryCharging, Fan, Info, LayoutDashboard, Zap } from '@lucide/svelte'
   import { store } from '$lib/store.svelte'
   import { cn } from '$lib/utils'
+  import { routes } from '$lib/routes'
 
   let { current, onNavigate }: { current: string; onNavigate: (id: string) => void } = $props()
-
-  const items = [
-    { id: 'overview', label: '总览', icon: LayoutDashboard },
-    { id: 'fans', label: '风扇', icon: Fan },
-    { id: 'power', label: '电源', icon: Zap },
-    { id: 'charge', label: '充电', icon: BatteryCharging },
-    { id: 'about', label: '关于', icon: Info }
-  ]
 
   const rate = $derived(store.monitor.rateMs > 0 ? `${store.monitor.rateMs} 毫秒` : '未运行')
 </script>
@@ -24,7 +16,7 @@
   </div>
 
   <div class="mt-6 flex flex-col gap-0.5">
-    {#each items as item (item.id)}
+    {#each routes as item (item.id)}
       <button
         type="button"
         class={cn(
