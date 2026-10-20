@@ -129,5 +129,5 @@ func (c FanCurve) DutyFor(tempC int) int {
 
 func (c FanCurve) PWMDuty(tempC int) int {
 	percent := c.DutyFor(tempC)
-	return int(math.Round(float64(percent) * 255 / 100))
+	return int(math.Round(float64(percent) * fanDutyMax / 100))
 }

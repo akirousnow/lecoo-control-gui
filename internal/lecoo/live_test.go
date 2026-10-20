@@ -150,6 +150,58 @@ func TestLiveWriteRoundTrip(t *testing.T) {
 	t.Logf("restored power=%s", restored.Power.Kind)
 }
 
+func TestLiveCurveAtMaxDuty(t *testing.T) {
+	liveOnly(t)
+	service := NewService()
+	defer service.Close()
+
+	if _, err := service.StartMonitor(300); err != nil {
+		t.Fatalf("StartMonitor: %v", err)
+	}
+	defer service.StopMonitor()
+
+	curve := DefaultCurve()
+	curve.Enabled = true
+	curve.Points = []CurvePoint{{TempC: 30, Duty: 100}, {TempC: 100, Duty: 100}}
+	curve.MinDuty = 100
+	curve.MaxDuty = 100
+	curve.PanicTemp = 110
+
+	if _, err := service.SetCurve(curve); err != nil {
+		t.Fatalf("SetCurve: %v", err)
+	}
+
+	deadline := time.Now().Add(10 * time.Second)
+	state := service.CurveState()
+	for time.Now().Before(deadline) {
+		state = service.CurveState()
+		if state.AppliedPWM > 0 || state.LastError != "" {
+			break
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+	if state.LastError != "" {
+		t.Fatalf("curve write failed at full duty: %s", state.LastError)
+	}
+	if state.AppliedPWM != 220 {
+		t.Fatalf("applied pwm = %d, want 220", state.AppliedPWM)
+	}
+	t.Logf("curve applied max pwm=%d without error", state.AppliedPWM)
+
+	settings, err := service.Settings()
+	if err != nil {
+		t.Fatalf("Settings: %v", err)
+	}
+	if settings.FanCPU.PWM != 220 {
+		t.Fatalf("readback pwm = %d, want 220", settings.FanCPU.PWM)
+	}
+
+	curve.Enabled = false
+	if _, err := service.SetCurve(curve); err != nil {
+		t.Fatalf("disable curve: %v", err)
+	}
+}
+
 func TestLiveCurveAppliesAndRestores(t *testing.T) {
 	liveOnly(t)
 	service := NewService()
@@ -188,8 +240,8 @@ func TestLiveCurveAppliesAndRestores(t *testing.T) {
 		}
 		time.Sleep(200 * time.Millisecond)
 	}
-	if state.AppliedPWM != 51 {
-		t.Fatalf("applied pwm = %d, want 51 (20%% of 255)", state.AppliedPWM)
+	if state.AppliedPWM != 44 {
+		t.Fatalf("applied pwm = %d, want 44 (20%% of 220)", state.AppliedPWM)
 	}
 	t.Logf("curve applied pwm=%d duty=%d temp=%v", state.AppliedPWM, state.Duty, state.TempC)
 
@@ -197,8 +249,8 @@ func TestLiveCurveAppliesAndRestores(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Settings after curve: %v", err)
 	}
-	if settings.FanCPU.Kind != "custom" || settings.FanCPU.PWM != 51 {
-		t.Fatalf("cpu fan = %+v, want custom 51", settings.FanCPU)
+	if settings.FanCPU.Kind != "custom" || settings.FanCPU.PWM != 44 {
+		t.Fatalf("cpu fan = %+v, want custom 44", settings.FanCPU)
 	}
 
 	curve.Enabled = false

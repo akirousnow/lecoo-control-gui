@@ -18,6 +18,18 @@ export namespace lecoo {
 	        this.at = source["at"];
 	    }
 	}
+	export class Capabilities {
+	    fanDutyMax: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Capabilities(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.fanDutyMax = source["fanDutyMax"];
+	    }
+	}
 	export class ChargeTarget {
 	    kind: string;
 	    preset: string;

@@ -84,7 +84,7 @@ CurrentSettings {
 | `temps` | CPU 温度、系统温度 | 否 | 文本含 emoji 与中文 |
 | `fans` | CPU 转速、GPU 转速 | 否 | 单位 RPM |
 | `monitoring --rate N` | 持续输出同一行数据 | 否 | 实时数据唯一来源，样本用 `\r` 分隔 |
-| `fan <cpu\|gpu\|both> <auto\|full\|turbo\|custom> [pwm]` | 无 | 是 | `custom` 必须带 0 到 255 |
+| `fan <cpu\|gpu\|both> <auto\|full\|turbo\|custom> [pwm]` | 无 | 是 | `custom` 参数文档写 0 到 255，但 N155A 上超过 220 会被守护进程拒绝 |
 | `charge [preset\|--min N --max N]` | 目标、生效、电池百分比 | 是 | 预设 full、desk、lifespan、balanced、high；自定义范围 20 到 100 |
 | `power [silent\|default\|perf]` | 当前配置 | 是 | 读回显示 Silent、Default、Performance |
 | `daemon telemetry enable\|disable\|id` | 遥测 ID | enable、disable | |

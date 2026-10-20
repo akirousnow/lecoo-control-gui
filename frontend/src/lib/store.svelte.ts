@@ -1,6 +1,7 @@
 import { api, EVENTS, failureMessage, onEvent } from './api'
 import type {
   Battery,
+  Capabilities,
   CurveState,
   FanCurve,
   FanTarget,
@@ -10,6 +11,7 @@ import type {
   Sample,
   Settings
 } from './domain'
+import { FAN_DUTY_FALLBACK } from './labels'
 
 export type HistoryPoint = {
   t: number
@@ -30,12 +32,17 @@ class Store {
   health = $state<Health | null>(null)
   monitor = $state<MonitorState>({ running: false, rateMs: 0, error: '' })
   curve = $state<CurveState | null>(null)
+  capabilities = $state<Capabilities | null>(null)
   history = $state<HistoryPoint[]>([])
   lastSampleAt = $state(0)
   error = $state('')
   notice = $state('')
   busy = $state(false)
   stale = $state(false)
+
+  get dutyMax(): number {
+    return this.capabilities?.fanDutyMax ?? FAN_DUTY_FALLBACK
+  }
 
   connect(): () => void {
     const offSample = onEvent<Sample>(EVENTS.sample, (sample) => this.applySample(sample))
@@ -65,8 +72,7 @@ class Store {
     }
   }
 
-  async init(): Promise<void> {
-    this.error = ''
+  async init(): Promise<void> {    this.error = ''
     try {
       const health = await api.health()
       this.health = health
@@ -78,18 +84,20 @@ class Store {
         this.error = health.message || '守护进程未响应'
         return
       }
-      const [settings, info, battery, monitor, curve] = await Promise.all([
+      const [settings, info, battery, monitor, curve, capabilities] = await Promise.all([
         api.settings(),
         api.info(),
         api.battery(),
         api.monitorState(),
-        api.curveState()
+        api.curveState(),
+        api.capabilities()
       ])
       this.settings = settings
       this.info = info
       this.battery = battery
       this.monitor = monitor
       this.curve = curve
+      this.capabilities = capabilities
     } catch (error) {
       this.error = failureMessage(error)
     }

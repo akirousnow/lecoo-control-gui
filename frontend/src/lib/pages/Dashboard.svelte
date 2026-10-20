@@ -128,11 +128,11 @@
     </div>
     <div class="rounded-xl border border-border/60 bg-card/50 px-4 py-3">
       <p class="text-[11px] text-muted-foreground">CPU 风扇</p>
-      <p class="mt-1 text-sm font-medium">{describeFan(store.settings?.fanCpu ?? null)}</p>
+      <p class="mt-1 text-sm font-medium">{describeFan(store.settings?.fanCpu ?? null, store.dutyMax)}</p>
     </div>
     <div class="rounded-xl border border-border/60 bg-card/50 px-4 py-3">
       <p class="text-[11px] text-muted-foreground">GPU 风扇</p>
-      <p class="mt-1 text-sm font-medium">{describeFan(store.settings?.fanGpu ?? null)}</p>
+      <p class="mt-1 text-sm font-medium">{describeFan(store.settings?.fanGpu ?? null, store.dutyMax)}</p>
     </div>
     <div class="rounded-xl border border-border/60 bg-card/50 px-4 py-3">
       <p class="text-[11px] text-muted-foreground">充电限制</p>

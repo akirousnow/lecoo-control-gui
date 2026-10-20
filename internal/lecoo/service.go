@@ -146,8 +146,8 @@ func (s *Service) SetFan(target string, mode string, pwm int) (Settings, error) 
 	}
 	args := []string{"fan", target, mode}
 	if mode == "custom" {
-		if pwm < 0 || pwm > 255 {
-			return Settings{}, invalid("PWM 需要落在 0 到 255")
+		if pwm < 0 || pwm > fanDutyMax {
+			return Settings{}, invalid("占空比需要落在 0 到 220")
 		}
 		args = append(args, strconv.Itoa(pwm))
 	}

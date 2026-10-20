@@ -4,6 +4,8 @@ import {lecoo} from '../models';
 
 export function Battery():Promise<lecoo.Battery>;
 
+export function Capabilities():Promise<lecoo.Capabilities>;
+
 export function CliPath():Promise<string>;
 
 export function CurveState():Promise<lecoo.CurveState>;

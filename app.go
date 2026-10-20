@@ -99,6 +99,10 @@ func (a *App) CurveState() lecoo.CurveState {
 	return a.svc.CurveState()
 }
 
+func (a *App) Capabilities() lecoo.Capabilities {
+	return a.svc.Capabilities()
+}
+
 func (a *App) SetCurve(curve lecoo.FanCurve) (lecoo.CurveState, error) {
 	return a.svc.SetCurve(curve)
 }

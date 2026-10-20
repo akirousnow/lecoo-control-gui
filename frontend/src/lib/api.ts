@@ -3,6 +3,7 @@ import { lecoo } from '../../wailsjs/go/models'
 import { EventsOn } from '../../wailsjs/runtime/runtime'
 import type {
   Battery,
+  Capabilities,
   CurveState,
   FanCurve,
   FanTarget,
@@ -57,6 +58,7 @@ export const api = {
   startMonitor: (rateMs: number) => backend.StartMonitor(rateMs) as Promise<MonitorState>,
   monitorState: () => backend.MonitorState() as Promise<MonitorState>,
   curveState: () => backend.CurveState() as Promise<CurveState>,
+  capabilities: () => backend.Capabilities() as Promise<Capabilities>,
   setCurve: (curve: FanCurve) =>
     backend.SetCurve(lecoo.FanCurve.createFrom(curve)) as Promise<CurveState>,
   minimise: () => backend.Minimise() as Promise<void>,

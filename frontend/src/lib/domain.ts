@@ -88,3 +88,7 @@ export type CurveState = {
   lastWriteAt: number
   lastError: string
 }
+
+export type Capabilities = {
+  fanDutyMax: number
+}

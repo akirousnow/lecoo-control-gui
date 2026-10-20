@@ -6,6 +6,10 @@ export function Battery() {
   return window['go']['main']['App']['Battery']();
 }
 
+export function Capabilities() {
+  return window['go']['main']['App']['Capabilities']();
+}
+
 export function CliPath() {
   return window['go']['main']['App']['CliPath']();
 }

@@ -99,12 +99,17 @@ export function describeCharge(target: ChargeTarget | null): string {
   return target.raw || '未知'
 }
 
-export function describeFan(mode: { kind: string; pwm: number } | null): string {
+export const FAN_DUTY_FALLBACK = 220
+
+export function describeFan(
+  mode: { kind: string; pwm: number } | null,
+  dutyMax = FAN_DUTY_FALLBACK
+): string {
   if (!mode) {
     return '读取中'
   }
   if (mode.kind === 'custom') {
-    return `自定义 ${mode.pwm}/255`
+    return `自定义 ${mode.pwm}/${dutyMax}`
   }
   return fanModeLabel(mode.kind)
 }

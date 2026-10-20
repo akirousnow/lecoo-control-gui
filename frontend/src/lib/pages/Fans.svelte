@@ -186,10 +186,10 @@
       <div class="mt-4">
         <div class="flex items-center justify-between">
           <span class="text-[11px] text-muted-foreground">PWM 占空比</span>
-          <span class="text-xs tabular-nums">{pwm} / 255</span>
+          <span class="text-xs tabular-nums">{pwm} / {store.dutyMax}</span>
         </div>
         <div class="mt-2">
-          <Range bind:value={pwm} min={0} max={255} />
+          <Range bind:value={pwm} min={0} max={store.dutyMax} />
         </div>
       </div>
     {/if}
@@ -202,10 +202,10 @@
 
     <div class="mt-4 flex items-center justify-between">
       <div class="text-[11px] text-muted-foreground">
-        当前 {describeFan(store.settings?.fanCpu ?? null)}
+        当前 {describeFan(store.settings?.fanCpu ?? null, store.dutyMax)}
         {#if target !== 'cpu'}
           <span class="mx-1 text-border">·</span>
-          GPU {describeFan(store.settings?.fanGpu ?? null)}
+          GPU {describeFan(store.settings?.fanGpu ?? null, store.dutyMax)}
         {/if}
       </div>
       <Button size="sm" disabled={store.busy || curveEnabled} onclick={apply}>应用</Button>
@@ -257,7 +257,7 @@
         <div>
           <p class="text-[10px] text-muted-foreground">已下发</p>
           <p class="text-sm font-semibold tabular-nums">
-            {livePwm >= 0 ? livePwm : '—'}<span class="ml-0.5 text-[10px] font-normal text-muted-foreground">/255</span>
+            {livePwm >= 0 ? livePwm : '—'}<span class="ml-0.5 text-[10px] font-normal text-muted-foreground">/{store.dutyMax}</span>
           </p>
         </div>
       </div>

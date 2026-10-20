@@ -89,10 +89,13 @@ func TestPWMConversion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Normalized: %v", err)
 	}
-	if got := curve.PWMDuty(65); got != 140 {
-		t.Errorf("PWMDuty(65) = %d, want 140", got)
+	if got := curve.PWMDuty(65); got != 121 {
+		t.Errorf("PWMDuty(65) = %d, want 121", got)
 	}
-	if got := curve.PWMDuty(95); got != 255 {
-		t.Errorf("PWMDuty(95) = %d, want 255", got)
+	if got := curve.PWMDuty(95); got != 220 {
+		t.Errorf("PWMDuty(95) = %d, want 220", got)
+	}
+	if got := curve.PWMDuty(20); got != 66 {
+		t.Errorf("PWMDuty(20) = %d, want 66", got)
 	}
 }
