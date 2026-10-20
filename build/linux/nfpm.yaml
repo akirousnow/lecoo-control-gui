@@ -7,6 +7,9 @@ priority: optional
 maintainer: akirousnow
 vendor: akirousnow
 homepage: https://github.com/akirousnow/lecoo-control-gui
+depends:
+  - libgtk-3-0
+  - libwebkit2gtk-4.0-37
 description: |
   联想来酷 N155A 的图形控制面板。
   硬件控制经由 Windows 上的 lecoo-ctrl.exe 与 LecooControlDaemon 完成，
