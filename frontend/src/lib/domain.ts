@@ -92,3 +92,8 @@ export type CurveState = {
 export type Capabilities = {
   fanDutyMax: number
 }
+
+export type WidgetPosition = {
+  x: number
+  y: number
+}

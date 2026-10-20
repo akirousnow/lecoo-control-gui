@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { Maximize2, Pin, PinOff, X } from '@lucide/svelte'
+  import { Check, MapPin, Maximize2, Pin, PinOff, X } from '@lucide/svelte'
   import appIcon from '../../assets/app-icon.png'
-  import { api } from '$lib/api'
+  import { api, failureMessage } from '$lib/api'
   import { powerLabel } from '$lib/labels'
   import { store } from '$lib/store.svelte'
   import { view } from '$lib/view.svelte'
+
+  let saved = $state(false)
 
   const blank = (value: number | null | undefined) => (value == null ? '—' : String(value))
 
@@ -40,6 +42,18 @@
       tone: 'text-indigo-500 dark:text-indigo-300'
     }
   ])
+
+  async function savePosition(): Promise<void> {
+    try {
+      await api.saveWidgetPosition()
+      saved = true
+      setTimeout(() => {
+        saved = false
+      }, 1500)
+    } catch (error) {
+      store.error = failureMessage(error)
+    }
+  }
 </script>
 
 <div class="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
@@ -55,6 +69,19 @@
       </span>
     </div>
     <div class="flex h-full items-stretch" style="--wails-draggable:no-drag">
+      <button
+        type="button"
+        class="flex w-7 items-center justify-center text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        aria-label="保存当前位置"
+        title="保存当前位置，下次进入小组件时回到这里"
+        onclick={savePosition}
+      >
+        {#if saved}
+          <Check class="size-3 text-emerald-500 dark:text-emerald-400" />
+        {:else}
+          <MapPin class="size-3" />
+        {/if}
+      </button>
       <button
         type="button"
         class="flex w-7 items-center justify-center text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"

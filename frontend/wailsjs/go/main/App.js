@@ -62,6 +62,10 @@ export function Sample() {
   return window['go']['main']['App']['Sample']();
 }
 
+export function SaveWidgetPosition() {
+  return window['go']['main']['App']['SaveWidgetPosition']();
+}
+
 export function SetAlwaysOnTop(arg1) {
   return window['go']['main']['App']['SetAlwaysOnTop'](arg1);
 }

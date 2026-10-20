@@ -296,3 +296,22 @@ export namespace lecoo {
 
 }
 
+export namespace main {
+	
+	export class WidgetPosition {
+	    x: number;
+	    y: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new WidgetPosition(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.x = source["x"];
+	        this.y = source["y"];
+	    }
+	}
+
+}
+

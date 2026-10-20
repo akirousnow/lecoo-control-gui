@@ -149,6 +149,9 @@ func (a *App) SetCompactWindow(compact bool, alwaysOnTop bool) {
 	if compact {
 		runtime.WindowSetMinSize(a.ctx, 360, 220)
 		runtime.WindowSetSize(a.ctx, 380, 232)
+		if position, ok := loadWidgetPosition(); ok {
+			runtime.WindowSetPosition(a.ctx, position.X, position.Y)
+		}
 		runtime.WindowSetAlwaysOnTop(a.ctx, alwaysOnTop)
 		return
 	}

@@ -11,7 +11,8 @@ import type {
   Info,
   MonitorState,
   Sample,
-  Settings
+  Settings,
+  WidgetPosition
 } from './domain'
 
 export const EVENTS = {
@@ -69,5 +70,6 @@ export const api = {
   setCompactWindow: (compact: boolean, alwaysOnTop: boolean) =>
     backend.SetCompactWindow(compact, alwaysOnTop) as Promise<void>,
   setAlwaysOnTop: (enabled: boolean) => backend.SetAlwaysOnTop(enabled) as Promise<void>,
+  saveWidgetPosition: () => backend.SaveWidgetPosition() as Promise<WidgetPosition>,
   stopMonitor: () => backend.StopMonitor() as Promise<MonitorState>
 }
