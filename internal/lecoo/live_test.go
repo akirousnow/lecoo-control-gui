@@ -12,6 +12,7 @@ func liveOnly(t *testing.T) {
 	if os.Getenv("LECOO_LIVE") != "1" {
 		t.Skip("set LECOO_LIVE=1 to run against the real lecoo-ctrl.exe")
 	}
+	configDirOverride = t.TempDir()
 }
 
 func TestLiveReads(t *testing.T) {

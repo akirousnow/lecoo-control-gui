@@ -17,11 +17,7 @@ func absInt(value int) int {
 }
 
 func curvePath() (string, error) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(dir, "lecoo-control-gui", "fan-curve.json"), nil
+	return configPath("fan-curve.json")
 }
 
 func loadCurve() FanCurve {
