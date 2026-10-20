@@ -10,6 +10,10 @@ export function CliPath() {
   return window['go']['main']['App']['CliPath']();
 }
 
+export function CurveState() {
+  return window['go']['main']['App']['CurveState']();
+}
+
 export function Health() {
   return window['go']['main']['App']['Health']();
 }
@@ -72,6 +76,10 @@ export function SetCliPath(arg1) {
 
 export function SetCompactWindow(arg1, arg2) {
   return window['go']['main']['App']['SetCompactWindow'](arg1, arg2);
+}
+
+export function SetCurve(arg1) {
+  return window['go']['main']['App']['SetCurve'](arg1);
 }
 
 export function SetFan(arg1, arg2, arg3) {

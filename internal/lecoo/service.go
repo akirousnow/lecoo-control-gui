@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 	"sync"
+	"time"
 )
 
 const (
@@ -15,6 +16,10 @@ const (
 	EventSettings = "lecoo:settings"
 	EventBattery  = "lecoo:battery"
 	EventMonitor  = "lecoo:monitor"
+	EventCurve    = "lecoo:curve"
+
+	curveMinInterval  = 4 * time.Second
+	curveSlowInterval = 30 * time.Second
 )
 
 var powerProfiles = map[string]bool{"silent": true, "default": true, "perf": true}
@@ -39,10 +44,18 @@ type Service struct {
 
 	mu  sync.Mutex
 	mon *monitorRun
+
+	curveMu     sync.Mutex
+	curve       FanCurve
+	lastPwm     int
+	lastTemp    *int
+	lastDuty    int
+	lastWriteAt time.Time
+	lastError   string
 }
 
 func NewService() *Service {
-	service := &Service{runner: NewRunner()}
+	service := &Service{runner: NewRunner(), lastPwm: -1, curve: loadCurve()}
 	if job, err := newKillJob(); err == nil {
 		service.job = job
 	}
@@ -138,7 +151,17 @@ func (s *Service) SetFan(target string, mode string, pwm int) (Settings, error) 
 		}
 		args = append(args, strconv.Itoa(pwm))
 	}
-	return s.write(context.Background(), args...)
+
+	s.curveMu.Lock()
+	curveWasEnabled := s.curve.Enabled
+	s.curve.Enabled = false
+	s.curveMu.Unlock()
+
+	settings, err := s.write(context.Background(), args...)
+	if curveWasEnabled {
+		s.emitEvent(EventCurve, s.CurveState())
+	}
+	return settings, err
 }
 
 func (s *Service) SetChargePreset(preset string) (Settings, error) {
@@ -226,6 +249,7 @@ func (s *Service) pump(run *monitorRun, cmd *exec.Cmd, stdout io.Reader, errBuf 
 			continue
 		}
 		s.emitEvent(EventSample, sample)
+		s.stepCurve(sample)
 	}
 	waitErr := cmd.Wait()
 	s.mu.Lock()
@@ -258,6 +282,7 @@ func (s *Service) StopMonitor() MonitorState {
 }
 
 func (s *Service) Close() {
+	s.stopCurve()
 	s.StopMonitor()
 	if s.job != nil {
 		s.job.close()

@@ -1,5 +1,15 @@
 import { api, EVENTS, failureMessage, onEvent } from './api'
-import type { Battery, FanTarget, Health, Info, MonitorState, Sample, Settings } from './domain'
+import type {
+  Battery,
+  CurveState,
+  FanCurve,
+  FanTarget,
+  Health,
+  Info,
+  MonitorState,
+  Sample,
+  Settings
+} from './domain'
 
 export type HistoryPoint = {
   t: number
@@ -19,6 +29,7 @@ class Store {
   info = $state<Info | null>(null)
   health = $state<Health | null>(null)
   monitor = $state<MonitorState>({ running: false, rateMs: 0, error: '' })
+  curve = $state<CurveState | null>(null)
   history = $state<HistoryPoint[]>([])
   lastSampleAt = $state(0)
   error = $state('')
@@ -35,6 +46,9 @@ class Store {
       this.battery = battery
     })
     const offMonitor = onEvent<MonitorState>(EVENTS.monitor, (state) => this.applyMonitor(state))
+    const offCurve = onEvent<CurveState>(EVENTS.curve, (state) => {
+      this.curve = state
+    })
 
     const reconcile = setInterval(() => {
       void this.refreshSettings()
@@ -46,6 +60,7 @@ class Store {
       offSettings()
       offBattery()
       offMonitor()
+      offCurve()
       clearInterval(reconcile)
     }
   }
@@ -63,16 +78,18 @@ class Store {
         this.error = health.message || '守护进程未响应'
         return
       }
-      const [settings, info, battery, monitor] = await Promise.all([
+      const [settings, info, battery, monitor, curve] = await Promise.all([
         api.settings(),
         api.info(),
         api.battery(),
-        api.monitorState()
+        api.monitorState(),
+        api.curveState()
       ])
       this.settings = settings
       this.info = info
       this.battery = battery
       this.monitor = monitor
+      this.curve = curve
     } catch (error) {
       this.error = failureMessage(error)
     }
@@ -116,6 +133,15 @@ class Store {
 
   async setTelemetry(enabled: boolean): Promise<void> {
     await this.mutate(() => api.setTelemetry(enabled), enabled ? '遥测已开启' : '遥测已关闭')
+  }
+
+  async setCurve(curve: FanCurve): Promise<void> {
+    try {
+      this.error = ''
+      this.curve = await api.setCurve(curve)
+    } catch (error) {
+      this.error = failureMessage(error)
+    }
   }
 
   async reapply(): Promise<void> {

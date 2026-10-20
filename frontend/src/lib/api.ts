@@ -1,7 +1,10 @@
 import * as backend from '../../wailsjs/go/main/App'
+import { lecoo } from '../../wailsjs/go/models'
 import { EventsOn } from '../../wailsjs/runtime/runtime'
 import type {
   Battery,
+  CurveState,
+  FanCurve,
   FanTarget,
   Health,
   Info,
@@ -14,7 +17,8 @@ export const EVENTS = {
   sample: 'lecoo:sample',
   settings: 'lecoo:settings',
   battery: 'lecoo:battery',
-  monitor: 'lecoo:monitor'
+  monitor: 'lecoo:monitor',
+  curve: 'lecoo:curve'
 } as const
 
 export function failureMessage(error: unknown): string {
@@ -52,6 +56,9 @@ export const api = {
   openHwtest: () => backend.OpenHwtest() as Promise<void>,
   startMonitor: (rateMs: number) => backend.StartMonitor(rateMs) as Promise<MonitorState>,
   monitorState: () => backend.MonitorState() as Promise<MonitorState>,
+  curveState: () => backend.CurveState() as Promise<CurveState>,
+  setCurve: (curve: FanCurve) =>
+    backend.SetCurve(lecoo.FanCurve.createFrom(curve)) as Promise<CurveState>,
   minimise: () => backend.Minimise() as Promise<void>,
   toggleMaximise: () => backend.ToggleMaximise() as Promise<void>,
   isMaximised: () => backend.IsMaximised() as Promise<boolean>,

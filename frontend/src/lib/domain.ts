@@ -64,3 +64,27 @@ export type Health = {
 }
 
 export type FanTarget = 'cpu' | 'gpu' | 'both'
+
+export type CurvePoint = {
+  tempC: number
+  duty: number
+}
+
+export type FanCurve = {
+  enabled: boolean
+  target: string
+  points: CurvePoint[]
+  minDuty: number
+  maxDuty: number
+  hysteresis: number
+  panicTemp: number
+}
+
+export type CurveState = {
+  curve: FanCurve
+  tempC?: number
+  duty: number
+  appliedPwm: number
+  lastWriteAt: number
+  lastError: string
+}

@@ -6,6 +6,8 @@ export function Battery():Promise<lecoo.Battery>;
 
 export function CliPath():Promise<string>;
 
+export function CurveState():Promise<lecoo.CurveState>;
+
 export function Health():Promise<lecoo.Health>;
 
 export function Info():Promise<lecoo.Info>;
@@ -37,6 +39,8 @@ export function SetChargeRange(arg1:number,arg2:number):Promise<lecoo.Settings>;
 export function SetCliPath(arg1:string):Promise<string>;
 
 export function SetCompactWindow(arg1:boolean,arg2:boolean):Promise<void>;
+
+export function SetCurve(arg1:lecoo.FanCurve):Promise<lecoo.CurveState>;
 
 export function SetFan(arg1:string,arg2:string,arg3:number):Promise<lecoo.Settings>;
 

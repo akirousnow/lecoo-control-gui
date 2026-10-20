@@ -38,6 +38,103 @@ export namespace lecoo {
 	        this.raw = source["raw"];
 	    }
 	}
+	export class CurvePoint {
+	    tempC: number;
+	    duty: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new CurvePoint(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.tempC = source["tempC"];
+	        this.duty = source["duty"];
+	    }
+	}
+	export class FanCurve {
+	    enabled: boolean;
+	    target: string;
+	    points: CurvePoint[];
+	    minDuty: number;
+	    maxDuty: number;
+	    hysteresis: number;
+	    panicTemp: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new FanCurve(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.enabled = source["enabled"];
+	        this.target = source["target"];
+	        this.points = this.convertValues(source["points"], CurvePoint);
+	        this.minDuty = source["minDuty"];
+	        this.maxDuty = source["maxDuty"];
+	        this.hysteresis = source["hysteresis"];
+	        this.panicTemp = source["panicTemp"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class CurveState {
+	    curve: FanCurve;
+	    tempC?: number;
+	    duty: number;
+	    appliedPwm: number;
+	    lastWriteAt: number;
+	    lastError: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CurveState(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.curve = this.convertValues(source["curve"], FanCurve);
+	        this.tempC = source["tempC"];
+	        this.duty = source["duty"];
+	        this.appliedPwm = source["appliedPwm"];
+	        this.lastWriteAt = source["lastWriteAt"];
+	        this.lastError = source["lastError"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
 	export class FanMode {
 	    kind: string;
 	    pwm: number;

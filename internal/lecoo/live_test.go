@@ -61,7 +61,8 @@ func TestLiveReads(t *testing.T) {
 	t.Logf("sample: %+v", sample)
 }
 
-func TestLiveMonitor(t *testing.T) {	liveOnly(t)
+func TestLiveMonitor(t *testing.T) {
+	liveOnly(t)
 	service := NewService()
 	defer service.Close()
 
@@ -147,4 +148,70 @@ func TestLiveWriteRoundTrip(t *testing.T) {
 		t.Fatalf("restored profile = %q, want %q", restored.Power.Kind, original.Power.Kind)
 	}
 	t.Logf("restored power=%s", restored.Power.Kind)
+}
+
+func TestLiveCurveAppliesAndRestores(t *testing.T) {
+	liveOnly(t)
+	service := NewService()
+	defer service.Close()
+
+	if _, err := service.StartMonitor(300); err != nil {
+		t.Fatalf("StartMonitor: %v", err)
+	}
+	defer service.StopMonitor()
+
+	original, err := service.Settings()
+	if err != nil {
+		t.Fatalf("Settings: %v", err)
+	}
+	t.Logf("fan before: cpu=%+v gpu=%+v", original.FanCPU, original.FanGPU)
+
+	curve := DefaultCurve()
+	curve.Enabled = true
+	curve.Target = "both"
+	curve.Points = []CurvePoint{{TempC: 30, Duty: 20}, {TempC: 100, Duty: 20}}
+	curve.MinDuty = 20
+	curve.MaxDuty = 20
+	curve.Hysteresis = 1
+	curve.PanicTemp = 110
+
+	if _, err := service.SetCurve(curve); err != nil {
+		t.Fatalf("SetCurve: %v", err)
+	}
+
+	deadline := time.Now().Add(10 * time.Second)
+	state := service.CurveState()
+	for time.Now().Before(deadline) {
+		state = service.CurveState()
+		if state.AppliedPWM > 0 {
+			break
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+	if state.AppliedPWM != 51 {
+		t.Fatalf("applied pwm = %d, want 51 (20%% of 255)", state.AppliedPWM)
+	}
+	t.Logf("curve applied pwm=%d duty=%d temp=%v", state.AppliedPWM, state.Duty, state.TempC)
+
+	settings, err := service.Settings()
+	if err != nil {
+		t.Fatalf("Settings after curve: %v", err)
+	}
+	if settings.FanCPU.Kind != "custom" || settings.FanCPU.PWM != 51 {
+		t.Fatalf("cpu fan = %+v, want custom 51", settings.FanCPU)
+	}
+
+	curve.Enabled = false
+	if _, err := service.SetCurve(curve); err != nil {
+		t.Fatalf("disable curve: %v", err)
+	}
+
+	settings, err = service.Settings()
+	if err != nil {
+		t.Fatalf("Settings after disable: %v", err)
+	}
+	if settings.FanCPU.Kind != "auto" || settings.FanGPU.Kind != "auto" {
+		t.Fatalf("fan after disable = %+v/%+v, want auto/auto", settings.FanCPU, settings.FanGPU)
+	}
+	t.Logf("curve disabled, fans back to auto")
 }
