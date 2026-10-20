@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>来酷控制中心</title>
+    <script>
+        try {
+            var stored = localStorage.getItem('lecoo-theme')
+            document.documentElement.classList.toggle('dark', stored !== 'light')
+        } catch (error) {
+            document.documentElement.classList.add('dark')
+        }
+    </script>
+</head>
+<body>
+<div id="app"></div>
+<script src="./src/main.ts" type="module"></script>
+</body>
+</html>
