@@ -32,6 +32,9 @@
     panicTemp: 95
   }
 
+  const numberField =
+    'h-7 rounded-md border border-border/60 bg-background px-2 text-right font-mono text-[11px] tabular-nums outline-none focus:border-ring'
+
   function cloneCurve(source: FanCurve): FanCurve {
     return {
       enabled: source.enabled,
@@ -229,80 +232,82 @@
     </div>
   </section>
 
-  <section use:rise={{ delay: 0.16 }} class="rounded-xl border border-border/60 bg-card/50 p-4">
-    <div class="flex items-start justify-between gap-4">
-      <div>
+  <section use:rise={{ delay: 0.16 }} class="overflow-hidden rounded-xl border border-border/60 bg-card/50">
+    <div class="flex items-start justify-between gap-4 px-4 py-3.5">
+      <div class="min-w-0">
         <p class="text-xs font-medium">温度曲线</p>
-        <p class="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-          按 CPU 温度线性插值出占空比，最低不低于下限，达到触发温度直接满速。只在本程序运行时生效，退出会恢复自动风扇。
+        <p class="mt-1 max-w-2xl text-[11px] leading-relaxed text-muted-foreground">
+          按 CPU 温度在节点之间线性插值出占空比，低于下限取下限，达到触发温度直接满速。只在本程序运行时生效，退出会恢复自动风扇。
         </p>
       </div>
       <Switch checked={curveEnabled} disabled={store.busy} onCheckedChange={toggleCurve} />
     </div>
 
     {#if curveEnabled}
-      <div class="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-muted/40 px-3 py-2">
-        <div>
+      <div class="grid grid-cols-3 divide-x divide-border/40 border-y border-border/40 bg-muted/20">
+        <div class="px-4 py-2">
           <p class="text-[10px] text-muted-foreground">当前温度</p>
-          <p class="text-sm font-semibold tabular-nums">
+          <p class="mt-0.5 text-sm font-semibold tabular-nums">
             {liveTemp ?? '—'}<span class="ml-0.5 text-[10px] font-normal text-muted-foreground">°C</span>
           </p>
         </div>
-        <div>
+        <div class="px-4 py-2">
           <p class="text-[10px] text-muted-foreground">目标占空比</p>
-          <p class="text-sm font-semibold tabular-nums">
+          <p class="mt-0.5 text-sm font-semibold tabular-nums">
             {liveDuty}<span class="ml-0.5 text-[10px] font-normal text-muted-foreground">%</span>
           </p>
         </div>
-        <div>
+        <div class="px-4 py-2">
           <p class="text-[10px] text-muted-foreground">已下发</p>
-          <p class="text-sm font-semibold tabular-nums">
+          <p class="mt-0.5 text-sm font-semibold tabular-nums">
             {livePwm >= 0 ? livePwm : '—'}<span class="ml-0.5 text-[10px] font-normal text-muted-foreground">/{store.dutyMax}</span>
           </p>
         </div>
       </div>
-      {#if curveError}
-        <p class="mt-2 rounded-md bg-destructive/10 px-2.5 py-2 text-[11px] text-destructive">
-          {curveError}
-        </p>
-      {/if}
     {/if}
 
-    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+    {#if curveError}
+      <p class="border-y border-destructive/20 bg-destructive/10 px-4 py-2 text-[11px] text-destructive">
+        {curveError}
+      </p>
+    {/if}
+
+    <div class="grid gap-5 p-4 lg:grid-cols-2">
       <div>
         <div class="flex items-center justify-between">
-          <p class="text-[11px] text-muted-foreground">温度节点</p>
+          <p class="text-[11px] font-medium">温度节点</p>
           <button
             type="button"
-            class="rounded-md px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="rounded-md px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             onclick={addPoint}
           >
             + 添加
           </button>
         </div>
-        <div class="mt-2 flex flex-col gap-1">
+        <div class="mt-2 grid grid-cols-[4.5rem_4.5rem_auto] gap-2 text-[10px] text-muted-foreground">
+          <span>温度 °C</span>
+          <span>占空比 %</span>
+        </div>
+        <div class="mt-1 flex flex-col gap-1.5">
           {#each draft.points as point, index (index)}
-            <div class="flex items-center gap-2">
+            <div class="grid grid-cols-[4.5rem_4.5rem_auto] items-center gap-2">
               <input
                 type="number"
                 bind:value={point.tempC}
                 min="20"
                 max="110"
-                class="h-7 w-16 rounded-md border border-border/60 bg-background px-2 text-right font-mono text-[11px] outline-none focus:border-ring"
+                class="{numberField} w-[4.5rem]"
               />
-              <span class="text-[10px] text-muted-foreground">°C</span>
-              <span class="text-[10px] text-muted-foreground">→</span>
               <input
                 type="number"
                 bind:value={point.duty}
                 min="0"
                 max="100"
-                class="h-7 w-16 rounded-md border border-border/60 bg-background px-2 text-right font-mono text-[11px] outline-none focus:border-ring"
+                class="{numberField} w-[4.5rem]"
               />
-              <span class="text-[10px] text-muted-foreground">%</span>
               <button
                 type="button"
-                class="ml-auto rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                class="justify-self-start rounded-md px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
                 disabled={draft.points.length <= 2}
                 onclick={() => removePoint(index)}
               >
@@ -313,43 +318,43 @@
         </div>
       </div>
 
-      <div>
-        <p class="text-[11px] text-muted-foreground">曲线预览</p>
-        <div class="mt-2 h-40">
+      <div class="min-w-0">
+        <p class="text-[11px] font-medium">曲线预览</p>
+        <div class="mt-2 h-[176px] rounded-lg border border-border/40 bg-background/30">
           <CurvePreview points={draft.points} />
         </div>
       </div>
     </div>
 
-    <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div class="grid grid-cols-2 gap-3 border-t border-border/40 px-4 py-3 sm:grid-cols-4">
       <label class="flex flex-col gap-1">
-        <span class="text-[10px] text-muted-foreground">最低占空比</span>
+        <span class="text-[10px] text-muted-foreground">最低占空比 %</span>
         <input
           type="number"
           bind:value={draft.minDuty}
           min="0"
           max="100"
-          class="h-7 rounded-md border border-border/60 bg-background px-2 text-right font-mono text-[11px] outline-none focus:border-ring"
+          class="{numberField} w-full max-w-[6.5rem]"
         />
       </label>
       <label class="flex flex-col gap-1">
-        <span class="text-[10px] text-muted-foreground">最高占空比</span>
+        <span class="text-[10px] text-muted-foreground">最高占空比 %</span>
         <input
           type="number"
           bind:value={draft.maxDuty}
           min="0"
           max="100"
-          class="h-7 rounded-md border border-border/60 bg-background px-2 text-right font-mono text-[11px] outline-none focus:border-ring"
+          class="{numberField} w-full max-w-[6.5rem]"
         />
       </label>
       <label class="flex flex-col gap-1">
-        <span class="text-[10px] text-muted-foreground">满速触发温度</span>
+        <span class="text-[10px] text-muted-foreground">满速触发 °C</span>
         <input
           type="number"
           bind:value={draft.panicTemp}
           min="60"
           max="110"
-          class="h-7 rounded-md border border-border/60 bg-background px-2 text-right font-mono text-[11px] outline-none focus:border-ring"
+          class="{numberField} w-full max-w-[6.5rem]"
         />
       </label>
       <label class="flex flex-col gap-1">
@@ -359,29 +364,31 @@
           bind:value={draft.hysteresis}
           min="1"
           max="64"
-          class="h-7 rounded-md border border-border/60 bg-background px-2 text-right font-mono text-[11px] outline-none focus:border-ring"
+          class="{numberField} w-full max-w-[6.5rem]"
         />
       </label>
     </div>
 
-    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-2">
-        <span class="text-[11px] text-muted-foreground">作用于</span>
-        <div class="flex gap-1 rounded-lg bg-muted/40 p-0.5">
-          {#each fanTargets as item (item.id)}
-            <button
-              type="button"
-              class={cn(
-                'rounded-md px-2 py-1 text-[11px] transition-colors',
-                draft.target === item.id
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-              onclick={() => (draft.target = item.id)}
-            >
-              {item.label}
-            </button>
-          {/each}
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-border/40 px-4 py-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-muted-foreground">作用于</span>
+          <div class="flex gap-1 rounded-lg bg-muted/40 p-0.5">
+            {#each fanTargets as item (item.id)}
+              <button
+                type="button"
+                class={cn(
+                  'rounded-md px-2 py-1 text-[11px] transition-colors',
+                  draft.target === item.id
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+                onclick={() => (draft.target = item.id)}
+              >
+                {item.label}
+              </button>
+            {/each}
+          </div>
         </div>
         <span class="text-[10px] text-muted-foreground">最快每 4 秒下发一次</span>
       </div>
